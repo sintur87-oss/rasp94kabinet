@@ -328,7 +328,13 @@ def sync_load_schedule_files() -> Tuple[List[Tuple[str,str]], str | None]:
         logger.info(f"Файл изменился: {name} — загружаю и парсю...")
         content = download_file_bytes(url)
         if not content:
-            logger.warning(f"Не удалось скачать {name}"); continue
+            logger.warning(f"Не удалось скачать {name}")
+            ds_fail = extract_date_from_filename(name)
+            if ds_fail and ds_fail in old:
+                new[ds_fail] = old[ds_fail]
+            if name in file_hashes:
+                new_hashes[name] = file_hashes[name]
+            continue
         new_hashes[name] = ymd5
         ds = extract_date_from_filename(name)
         if not ds:
